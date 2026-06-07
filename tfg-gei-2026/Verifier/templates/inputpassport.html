@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Input Passport{% endblock %}
+
+{% block content %}
+
+    <h1>Enter a GA4GH Passport</h1>
+
+<section class="form-card">
+
+    <p><strong>Dataset:</strong> {{ dataset_name }}</p>
+    <p><strong>Required visa value:</strong> {{ required_visa_value }}</p>
+
+    <form method="post" action="/ui/verifier/input-passport/{{ dataset_id }}">
+        <label for="passport"><strong>Paste Passport JWT</strong></label><br>
+        <textarea
+            id="passport"
+            name="passport"
+            rows="12"
+            cols="100"
+            placeholder="Paste the full GA4GH Passport JWT here"
+            required
+        ></textarea>
+
+        <br><br>
+        <button type="submit">Add Passport JWT</button>
+    </form>
+
+</section>
+
+    <a href="/dashboard">Back to Dashboard</a>
+
+
+{% endblock %}

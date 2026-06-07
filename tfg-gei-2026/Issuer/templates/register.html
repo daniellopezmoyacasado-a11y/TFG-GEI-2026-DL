@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Issuer Register</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    
+    <main class="login-page">
+
+    <div class="login-container">
+        <h1 class="login-title">GA4GH Passport Issuer Register</h1>
+
+    <section class="login-card">
+
+    <form method="post" action="/register" class="stacked-form">
+        <label>Name</label>
+        <input type="text" name="name" required>
+
+        <label>Email</label>
+        <input type="email" name="email" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <p>
+        Already have an account?
+        <a href="/login">Log in here</a>
+    </p>
+
+    {% if message %}
+    <p>{{ message }}</p>
+    {% endif %}
+
+    {% if error %}
+    <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    </section>
+    </div>
+    </main>
+
+
+</body>
+</html>

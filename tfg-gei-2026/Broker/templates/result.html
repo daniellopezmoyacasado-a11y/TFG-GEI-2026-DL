@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Broker Result{% endblock %}
+
+{% block content %}
+
+<h1>Broker Result</h1>
+
+{% if error %}
+
+    <div class="error-box">
+        <p><strong>Error:</strong> {{ error }}</p>
+    </div>
+
+    <a class="page-link" href="/dashboard">Go back</a>
+
+{% elif result.presentation_request_url %}
+
+    <section class="result-card">
+        <p><strong>User:</strong> {{ result.email }}</p>
+        <p><strong>Message:</strong> {{ result.message }}</p>
+        <p><strong>User ID:</strong> {{ result.user_id }}</p>
+        <p><strong>Session ID:</strong> {{ result.session_id }}</p>
+
+        <h2>Presentation Request URL</h2>
+
+        <textarea id="copyField" rows="4" readonly>{{ result.presentation_request_url }}</textarea>
+
+        <div class="actions">
+            <button onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+
+        <p>
+            Open the wallet, complete the presentation request, and once the wallet redirects back,
+            continue from the success page.
+        </p>
+    </section>
+
+    <a class="page-link" href="/dashboard">Back to Dashboard</a>
+
+{% elif result.passport_issued %}
+
+    <section class="result-card">
+        <p><strong>Message:</strong> {{ result.message }}</p>
+        <p><strong>Local User ID:</strong> {{ result.user_id }}</p>
+        <p><strong>Wallet User ID:</strong> {{ result.user_wallet_id }}</p>
+        <p><strong>Visa Count:</strong> {{ result.visa_count }}</p>
+
+        <h2>Passport JWT</h2>
+
+        <textarea id="copyField" rows="12" readonly>{{ result.passport }}</textarea>
+
+        <div class="actions">
+            <button onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+    </section>
+
+    <a class="page-link" href="/dashboard">Back to Dashboard</a>
+
+{% else %}
+
+    <p>No result available.</p>
+    <a class="page-link" href="/dashboard">Back to Dashboard</a>
+
+{% endif %}
+
+<script>
+function copyToClipboard() {
+    const textarea = document.getElementById("copyField");
+    if (!textarea) return;
+
+    textarea.select();
+    textarea.setSelectionRange(0, 99999);
+
+    const value = textarea.value.trim();
+
+    navigator.clipboard.writeText(value)
+        .then(() => alert("Copied to clipboard!"))
+        .catch(err => alert("Failed to copy: " + err));
+}
+</script>
+
+{% endblock %}

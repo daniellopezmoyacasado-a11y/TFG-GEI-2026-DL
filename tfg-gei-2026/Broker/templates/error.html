@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Broker Error{% endblock %}
+
+{% block content %}
+
+<h1 class="danger-title">Something went wrong</h1>
+
+<div class="error-box">
+    {% if status_code %}
+        <p><strong>Status:</strong> {{ status_code }}</p>
+    {% endif %}
+    <p><strong>Error:</strong> {{ error }}</p>
+
+    {% if session_id %}
+        <p><strong>Session ID:</strong> {{ session_id }}</p>
+    {% endif %}
+</div>
+
+<a class="page-link" href="{{ back_url or '/dashboard' }}">Back</a>
+
+{% endblock %}

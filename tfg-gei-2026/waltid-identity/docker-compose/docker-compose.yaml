@@ -1,0 +1,291 @@
+services:
+  wallet-api:
+    image: ${IMAGE_PREFIX}waltid/wallet-api:${VERSION_TAG:-latest}
+    profiles:
+      - services
+      - identity
+      - all
+    pull_policy: missing
+    depends_on:
+      postgres:
+        condition: service_healthy
+      caddy:
+        condition: service_started
+    env_file:
+      - .env
+    extra_hosts:
+      - "$SERVICE_HOST:host-gateway"
+      - "waltid.enterprise.localhost:host-gateway"
+    volumes:
+      - ./wallet-api/config:/waltid-wallet-api/config
+      - ./wallet-api/data:/waltid-wallet-api/data
+
+  issuer-api:
+    image: ${IMAGE_PREFIX}waltid/issuer-api:${VERSION_TAG:-latest}
+    profiles:
+      - services
+      - identity
+      - all
+    pull_policy: missing
+    depends_on:
+      - caddy
+    env_file:
+      - .env
+    volumes:
+      - ./issuer-api/config:/waltid-issuer-api/config
+
+  verifier-api:
+    image: ${IMAGE_PREFIX}waltid/verifier-api:${VERSION_TAG:-latest}
+    profiles:
+      - services
+      - identity
+      - all
+    pull_policy: missing
+    depends_on:
+      - caddy
+    env_file:
+      - .env
+    volumes:
+      - ./verifier-api/config:/waltid-verifier-api/config
+    environment:
+      OPA_SERVER_URL: "http://opa-server:8181"
+
+  verifier-api2:
+    image: ${IMAGE_PREFIX}waltid/verifier-api2:${VERSION_TAG:-latest}
+    profiles:
+      - services
+      - identity
+      - all
+    pull_policy: missing
+    depends_on:
+      - caddy
+    env_file:
+      - .env
+    volumes:
+      - ./verifier-api2/config:/waltid-verifier-api2/config
+
+
+  waltid-demo-wallet:
+    image: ${IMAGE_PREFIX}waltid/waltid-demo-wallet:${VERSION_TAG:-latest}
+    profiles:
+      - apps
+      - identity
+      - all
+    pull_policy: missing
+    build:
+      context: ../
+      dockerfile: waltid-applications/waltid-web-wallet/apps/waltid-demo-wallet/Dockerfile
+    depends_on:
+      - wallet-api
+      - caddy
+    environment:
+      NUXT_PUBLIC_ISSUER_CALLBACK_URL: "${DEMO_WALLET_PUBLIC_URL:-https://demo-wallet.localhost}"
+      NUXT_PUBLIC_DEV_WALLET_URL: "${WALLET_PUBLIC_URL:-https://wallet.localhost}"
+      PORT: $DEMO_WALLET_FRONTEND_PORT
+
+  waltid-dev-wallet:
+    image: ${IMAGE_PREFIX}waltid/waltid-dev-wallet:${VERSION_TAG:-latest}
+    profiles:
+      - apps
+      - identity
+      - all
+    pull_policy: missing
+    build:
+      context: ../
+      dockerfile: waltid-applications/waltid-web-wallet/apps/waltid-dev-wallet/Dockerfile
+    depends_on:
+      - wallet-api
+      - caddy
+    environment:
+      NUXT_PUBLIC_ISSUER_CALLBACK_URL: "${WALLET_PUBLIC_URL:-https://wallet.localhost}"
+      NUXT_PUBLIC_DEMO_WALLET_URL: "${DEMO_WALLET_PUBLIC_URL:-https://demo-wallet.localhost}"
+      PORT: $DEV_WALLET_FRONTEND_PORT
+
+  web-portal:
+    image: ${IMAGE_PREFIX}waltid/portal:${VERSION_TAG:-latest}
+    profiles:
+      - apps
+      - identity
+      - all
+    pull_policy: missing
+    build:
+      context: ../
+      dockerfile: waltid-applications/waltid-web-portal/Dockerfile
+    depends_on:
+      - caddy
+    environment:
+      NEXT_PUBLIC_VC_REPO: "${WALTID_VC_REPO_PUBLIC_URL:-https://vc-repo.localhost}"
+      NEXT_PUBLIC_ISSUER: "${WALTID_ISSUER_API_PUBLIC_URL:-https://issuer-api.localhost}"
+      NEXT_PUBLIC_VERIFIER: "${WALTID_VERIFIER_API_PUBLIC_URL:-https://verifier-api.localhost}"
+      NEXT_PUBLIC_WALLET: "${DEMO_WALLET_PUBLIC_URL:-https://demo-wallet.localhost}"
+      PORT: $WEB_PORTAL_PORT
+
+  vc-repo:
+    platform: linux/amd64
+    image: ${IMAGE_PREFIX}waltid/vc-repository:${VERSION_VC_REPO:-latest}
+    profiles:
+      - services
+      - identity
+      - all
+    pull_policy: missing
+    build:
+      context: ../waltid-applications/waltid-credentials/.
+    depends_on:
+      - caddy
+    environment:
+      PORT: $VC_REPO_PORT
+
+  valkey:
+    image: valkey/valkey:${VERSION_VALKEY:-7.2}
+    profiles:
+      - valkey
+      - all
+    container_name: valkey
+    healthcheck:
+      test: [ "CMD", "valkey-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: always
+    command: ["valkey-server", "--bind", "0.0.0.0", "--port", "6379"]
+    ports:
+      - "${VALKEY_PORT:-6379}:6379"
+    volumes:
+      - valkey_data:/data
+
+  postgres:
+    image: postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-U", "$DB_USERNAME" ]
+      interval: 5s
+      timeout: 1s
+      retries: 5
+    restart: always
+    environment:
+      POSTGRES_DB: $DB_NAME
+      POSTGRES_USER: $DB_USERNAME
+      POSTGRES_PASSWORD: $DB_PASSWORD
+    volumes:
+      - wallet-api-db:/waltid-wallet-api/data
+    ports:
+      - $POSTGRES_HOST_PORT:5432 #TODO: tcp/udp proxy with caddy
+
+  vault:
+    image: hashicorp/vault:${VERSION_VAULT:-latest}
+    profiles:
+      - tse
+      - all
+    container_name: vault
+    healthcheck:
+      test: ["CMD-SHELL", "vault status || exit 1"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+    volumes:
+      - ./vault/config.hcl:/vault/config/config.hcl
+      - vault_data:/vault/file
+    ports:
+      - "$VAULT_PORT:8200"
+    environment:
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:$VAULT_PORT"
+      VAULT_ADDR: "http://127.0.0.1:$VAULT_PORT"
+    command: server -config=/vault/config/config.hcl -dev -dev-root-token-id="dev-only-token"
+    restart: always
+
+  vault-init:
+    image: hashicorp/vault:${VERSION_VAULT:-latest}
+    profiles:
+      - tse
+      - all
+    container_name: vault-init
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "dev-only-token"
+      VAULT_ADDR: "http://vault:$VAULT_PORT"
+    depends_on:
+      vault:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c", "/vault/scripts/init.sh"]
+    volumes:
+      - ./vault/init.sh:/vault/scripts/init.sh
+
+  opa-server:
+    platform: linux/amd64
+    image: openpolicyagent/opa:${VERSION_OPA:-latest}
+    container_name: opa-server
+    profiles:
+      - opa
+      - all
+    ports:
+      - "$OPA_SERVER_PORT:8181"
+    command: [ "run", "--server", "--addr", ":8181" ]
+    extra_hosts:
+      - "$SERVICE_HOST:host-gateway"
+
+  caddy:
+    image: docker.io/caddy:2
+    restart: unless-stopped
+    env_file:
+      - .env
+    cap_add:
+      - NET_ADMIN
+    ports:
+
+      - target: "$WALLET_BACKEND_PORT"
+        published: $WALLET_BACKEND_PORT # wallet-api
+        protocol: tcp
+        mode: host
+
+      - target: "$ISSUER_API_PORT"
+        published: $ISSUER_API_PORT # issuer-api
+        protocol: tcp
+        mode: host
+
+      - target: "$VERIFIER_API_PORT"
+        published: $VERIFIER_API_PORT # verifier-api
+        protocol: tcp
+        mode: host
+
+      - target: "$VERIFIER_API2_PORT"
+        published: $VERIFIER_API2_PORT # verifier-api2
+        protocol: tcp
+        mode: host
+
+      - target: "$DEMO_WALLET_FRONTEND_PORT"
+        published: $DEMO_WALLET_FRONTEND_PORT # waltid-demo-wallet
+        protocol: tcp
+        mode: host
+
+      - target: "$DEV_WALLET_FRONTEND_PORT"
+        published: $DEV_WALLET_FRONTEND_PORT # waltid-dev-wallet
+        protocol: tcp
+        mode: host
+
+      - target: "$WEB_PORTAL_PORT"
+        published: $WEB_PORTAL_PORT # web-portal
+        protocol: tcp
+        mode: host
+
+      - target: "$VC_REPO_PORT"
+        published: $VC_REPO_PORT # vc-repo
+        protocol: tcp
+        mode: host
+
+      - target: "$PG_ADMIN_PORT"
+        published: $PG_ADMIN_PORT # pg-admin
+        protocol: tcp
+        mode: host
+
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - default
+      - platform
+volumes:
+  wallet-api-db:
+  vault_data:
+  valkey_data:
+
+networks:
+  platform:
+    name: tfg-shared

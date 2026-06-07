@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Add a new Visa{% endblock %}
+
+{% block content %}
+
+<section class="form-card">
+    <h1>Request Visa Presentation for Wallet</h1>
+
+    <form method="post" action="/ui/broker/presentation-request">
+        <button type="submit">Create Presentation Request</button>
+    </form>
+</section>
+
+<section class="form-card">
+    <h1>Add a new Visa</h1>
+
+    <form method="post" action="/ui/broker/visa">
+        <label for="visa"><strong>Paste Visa JWT</strong></label>
+
+        <textarea
+            id="visa"
+            name="visa"
+            rows="12"
+            placeholder="Paste the full GA4GH Visa JWT here"
+            required
+        ></textarea>
+
+        <button type="submit">Add Visa JWT</button>
+    </form>
+</section>
+
+<a class="page-link" href="/dashboard">Back to Dashboard</a>
+
+{% endblock %}

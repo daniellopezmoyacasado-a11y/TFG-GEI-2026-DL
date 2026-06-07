@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Visa Result{% endblock %}
+
+{% block content %}
+
+<h1>Visa Result</h1>
+
+{% if error %}
+    <div class="error-box">
+        <strong>Error:</strong> {{ error }}
+    </div>
+
+    <a class="page-link" href="/dashboard">
+        Go back
+    </a>
+{% elif result.offer_url %}
+
+    <section class="result-card">
+    <p><strong>User:</strong> {{ result.email }}</p>
+    <p><strong>Message:</strong> {{ result.message }}</p>
+    <p><strong>User ID:</strong> {{ result.user_id }}</p>
+
+    <h3>Offer URL</h3>
+
+    <textarea id="offerUrl" rows="4" cols="80" readonly>
+    {{ result.offer_url }}
+    </textarea>
+
+    <br><br>
+
+    <button onclick="copyToClipboard()">Copy to Clipboard</button>
+    </section>
+    
+    <br><br>
+
+    <a class="page-link" href="/dashboard">
+        Back to Dashboard
+    </a>
+{% elif result.token %}
+
+    <section class="result-card">
+    <p><strong>User:</strong> {{ result.email }}</p>
+    <p><strong>Message:</strong> {{ result.message }}</p>
+    <p><strong>User ID:</strong> {{ result.user_id }}</p>
+
+    <h3>Visa JWT</h3>
+
+    <textarea id="offerUrl" rows="8" cols="100" readonly>
+    {{ result.token }}
+    </textarea>
+
+    <br><br>
+
+    <button onclick="copyToClipboard()">Copy to Clipboard</button>
+
+    <br><br>
+    </section>
+
+    <a class="page-link" href="/dashboard">
+        Back to Dashboard
+    </a>
+
+{% else %}
+    <p>No result available.</p>
+    <a class="page-link" href="/dashboard">
+        Back to Dashboard
+    </a>
+{% endif %}
+
+<script>
+function copyToClipboard() {
+    const textarea = document.getElementById("offerUrl");
+    textarea.select();
+    textarea.setSelectionRange(0, 99999);
+
+    const value = textarea.value.trim();
+
+    navigator.clipboard.writeText(value)
+        .then(() => alert("Copied to clipboard!"))
+        .catch(err => alert("Failed to copy: " + err));
+}
+</script>
+
+{% endblock %}

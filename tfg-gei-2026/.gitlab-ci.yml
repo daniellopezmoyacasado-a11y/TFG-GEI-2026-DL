@@ -1,0 +1,12 @@
+image: python:3.12
+
+stages:
+  - verify
+
+verify:
+  stage: verify
+  before_script:
+    - python3 -m pip install --upgrade pip
+    - python3 -m pip install -r requirements.txt
+  script:
+    - python3 -m py_compile Issuer/issuer_app.py Verifier/verifier_app.py Broker/broker_app.py wallet_client.py

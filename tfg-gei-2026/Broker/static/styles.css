@@ -1,0 +1,299 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #ffffff;
+    color: #222;
+}
+
+.page {
+    margin: 30px;
+}
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 30px;
+    border-bottom: 1px solid #ccc;
+    background: #fafafa;
+}
+
+.app-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 14px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #222;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.nav-links a:hover {
+    background: #e6ecff;
+}
+
+.user-line {
+    margin-bottom: 20px;
+    color: #555;
+}
+
+.card-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card,
+.visa-card,
+.form-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: #fafafa;
+    transition: all 0.2s ease;
+}
+
+.card:hover,
+.visa-card:hover,
+.form-card:hover {
+    background: #f0f4ff;
+    border-color: #8aa0ff;
+}
+
+.card h2,
+.visa-card h2,
+.form-card h2 {
+    margin: 0 0 8px 0;
+}
+
+.card-meta p,
+.visa-meta p {
+    margin: 4px 0;
+    font-size: 0.95rem;
+}
+
+.error-box {
+    margin-bottom: 16px;
+    padding: 10px;
+    border: 1px solid red;
+    color: red;
+    border-radius: 8px;
+    background: #fff5f5;
+}
+
+.success-box {
+    margin-bottom: 16px;
+    padding: 10px;
+    border: 1px solid rgb(33, 114, 22);
+    color: rgb(33, 114, 22);
+    border-radius: 8px;
+    background: #f4fff2;
+}
+
+button {
+    padding: 6px 10px;
+    border: 1px solid #444;
+    background: white;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+button:hover {
+    background: #e6ecff;
+}
+
+form {
+    margin: 8px 0;
+}
+
+select {
+    padding: 6px 10px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+    background: white;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.link-list {
+    padding-left: 20px;
+}
+
+.status-valid {
+    color: green;
+    font-weight: bold;
+}
+
+.status-expired {
+    color: red;
+    font-weight: bold;
+}
+
+.danger-title {
+    color: red;
+}
+
+.result-card,
+.login-card {
+    padding: 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background: #fafafa;
+}
+
+.result-card {
+    margin-bottom: 16px;
+}
+
+textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    resize: vertical;
+}
+
+input {
+    padding: 8px 10px;
+    border: 1px solid #aaa;
+    border-radius: 6px;
+}
+
+.stacked-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.page-link {
+    display: inline-block;
+    margin-top: 12px;
+    color: #222;
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.page-link:hover {
+    background: #e6ecff;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    padding-top: 80px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+
+    padding: 32px;
+
+    background: white;
+
+    border: 1px solid #d8ddee;
+    border-radius: 16px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,0.08),
+        0 2px 8px rgba(0,0,0,0.04);
+}
+
+.login-title {
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 460px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 20px;
+}
+
+.login-title {
+    margin: 0;
+
+    text-align: center;
+
+    font-size: 2rem;
+    font-weight: bold;
+
+    color: #222;
+}
+
+.login-card h1 {
+    margin-top: 0;
+    margin-bottom: 24px;
+
+    text-align: center;
+    font-size: 1.8rem;
+}
+
+.stacked-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.stacked-form label {
+    font-weight: 600;
+    margin-bottom: -6px;
+}
+
+.stacked-form input {
+    padding: 10px 12px;
+
+    border: 1px solid #bfc7d9;
+    border-radius: 8px;
+
+    font-size: 0.95rem;
+
+    transition: border-color 0.15s ease,
+                box-shadow 0.15s ease;
+}
+
+.stacked-form input:focus {
+    outline: none;
+
+    border-color: #6d8cff;
+
+    box-shadow: 0 0 0 3px rgba(109,140,255,0.15);
+}
+
+.login-card button {
+    margin-top: 8px;
+    padding: 10px 14px;
+
+    font-size: 0.95rem;
+    font-weight: 600;
+}

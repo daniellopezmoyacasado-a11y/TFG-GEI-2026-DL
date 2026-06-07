@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}GA4GH Broker{% endblock %}
+
+{% block content %}
+
+<h1>GA4GH Passport Broker</h1>
+
+<p class="user-line">
+    Logged in as: {{ user.email }}
+</p>
+
+{% if error %}
+    <div class="error-box">{{ error }}</div>
+{% endif %}
+
+{% if message %}
+    <div class="success-box">{{ message }}</div>
+{% endif %}
+
+<h2>View and manage your visas here</h2>
+
+
+
+{% if user_visas %}
+    <form method="post" action="/ui/issue-passport">
+    <button type="submit">Issue Passport</button>
+    </form>
+
+    <div class="card-grid">
+
+        {% for visa in user_visas %}
+            <div class="visa-card">
+
+                <div class="visa-meta">
+                    <p><strong>Type:</strong> {{ visa.type }}</p>
+                    <p><strong>Value:</strong> {{ visa.value }}</p>
+                    <p><strong>Subject:</strong> {{ visa.sub }}</p>
+                    <p><strong>JTI:</strong> {{ visa.jti }}</p>
+
+                    {% if visa.expires_at %}
+                        <p>
+                            <strong>Expires at:</strong>
+                            {{ visa.expires_at }}
+
+                            {% if visa.is_expired %}
+                                <span class="status-expired">(Expired)</span>
+                            {% else %}
+                                <span class="status-valid">(Valid)</span>
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        <p><strong>Expires at:</strong> No expiry date</p>
+                    {% endif %}
+                </div>
+
+                <form method="post"
+                      action="/ui/assignments/{{ visa.assignment_id }}/delete"
+                      onsubmit="return confirm('Are you sure you want to remove this visa?');">
+
+                    <button type="submit">
+                        Remove visa
+                    </button>
+
+                </form>
+            </div>
+        {% endfor %}
+
+    </div>
+
+    <form method="post" action="/ui/issue-passport">
+        <button type="submit">Issue Passport</button>
+    </form>
+
+    <form method="get" action="/input-visa">
+        <button type="submit">Assign a new Visa</button>
+    </form>
+
+    <form method="post" action="/logout"> 
+        <button type="submit">Log out</button> 
+    </form>
+
+{% else %}
+    <p>No visas assigned to this user.</p>
+
+    <form method="get" action="/input-visa">
+        <button type="submit">Assign a new Visa</button>
+    </form>
+
+    <form method="post" action="/logout"> 
+        <button type="submit">Log out</button> 
+    </form>
+{% endif %}
+
+{% endblock %}

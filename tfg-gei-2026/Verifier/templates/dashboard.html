@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}GA4GH Verifier{% endblock %}
+
+{% block content %}
+
+    <h1>GA4GH Dataset Access Dashboard</h1>
+
+    {% if error %}
+        <div class="error-box">
+            <strong>Error:</strong> {{ error }}
+        </div>
+    {% endif %}
+
+    <div class="datasets-grid">
+
+        {% for ds in datasets %}
+
+        <div class="dataset-card{{ds.color}}">
+            <h2>{{ ds.name }}</h2>
+
+            <div class="dataset-meta">
+                <!--<p><strong>ID:</strong> {{ ds.id }}</p>--> <!-- not really necessary-->
+                <!--<p><strong>Required visa value:</strong> <span class="badge">{{ ds.required_visa_value }}</span></p>-->
+                <!--<p><strong>Name:</strong> {{ ds.name }}</p>-->
+                <!--<p><strong>File path:</strong> {{ ds.file_path }}</p>-->
+                <p><strong>Description:</strong> {{ ds.description or "No description" }}</p>
+                <p><strong>File size:</strong> {{ ds.file_size }}</p>
+                <p><strong>Downloads:</strong> {{ ds.num_downloads }}</p>
+                
+            </div>
+
+            <div class="passport-section">
+                <form method="get" action="/ui/verifier/input-passport/{{ ds.id }}">
+                    <button type="submit">Present Passport</button>
+                </form>
+            </div>
+
+            <div class="wallet-section">
+                <form method="post" action="/ui/verifier/presentation-request">
+                    <input type="hidden" name="dataset_id" value="{{ ds.id }}">
+
+                    <button type="submit">Present Visa from Wallet</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

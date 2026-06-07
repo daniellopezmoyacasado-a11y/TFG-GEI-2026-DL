@@ -1,0 +1,67 @@
+plugins {
+    id("waltid.multiplatform.library")
+    id("waltid.publish.maven")
+    id("waltid.publish.npm")
+}
+
+group = "id.walt.credentials"
+fun getSetting(name: String) = providers.gradleProperty(name).orNull.toBoolean()
+val enableIosBuild = getSetting("enableIosBuild")
+
+kotlin {
+    applyDefaultHierarchyTemplate()
+    js(IR) {
+        outputModuleName.set("w3c-credentials")
+    }
+    if (enableIosBuild) {
+        iosArm64()
+        iosSimulatorArm64()
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+            // JSON
+            implementation(identityLibs.kotlinx.serialization.json)
+            implementation(identityLibs.optimumcode.jsonschemavalidator)
+
+            // Ktor client
+            implementation(identityLibs.bundles.waltid.ktor.client)
+
+            // Coroutines
+            implementation(identityLibs.kotlinx.coroutines.core)
+
+            // Kotlinx
+            implementation(identityLibs.kotlinx.datetime)
+
+            // Logging
+            implementation(identityLibs.oshai.kotlinlogging)
+
+            // walt.id
+            api(project(":waltid-libraries:crypto:waltid-crypto"))
+            api(project(":waltid-libraries:sdjwt:waltid-sdjwt"))
+            api(project(":waltid-libraries:waltid-did"))
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+        }
+        jvmMain.dependencies {
+            // Json canonicalization
+            implementation("io.github.erdtman:java-json-canonicalization:1.1")
+        }
+        jvmTest.dependencies {
+            // Ktor client
+            implementation(identityLibs.ktor.client.okhttp)
+
+            implementation(identityLibs.kotlinx.serialization.json)
+            implementation("org.slf4j:slf4j-simple:2.0.17")
+        }
+    }
+}
+
+mavenPublishing {
+    pom {
+        name.set("walt.id W3C credential")
+        description.set("walt.id Kotlin/Java library for W3C Credentials")
+    }
+}

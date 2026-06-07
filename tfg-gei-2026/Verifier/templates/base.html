@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}GA4GH VERIFIER{% endblock %}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" href="/static/verifiericon.png" type="image/png">
+</head>
+<body>
+
+    {% include "header.html" %}
+
+    <main class="page">
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,64 @@
+{
+    admin off
+    local_certs
+}
+
+(local_tls) {
+    tls internal
+    encode zstd gzip
+}
+
+issuer.localhost {
+    import local_tls
+    reverse_proxy issuer:8081
+}
+
+broker.localhost {
+    import local_tls
+    reverse_proxy broker:8082
+}
+
+verifier.localhost {
+    import local_tls
+    reverse_proxy verifier:8083
+}
+
+wallet.localhost {
+    import local_tls
+    reverse_proxy caddy:7104
+}
+
+demo-wallet.localhost {
+    import local_tls
+    reverse_proxy caddy:7101
+}
+
+portal.localhost {
+    import local_tls
+    reverse_proxy caddy:7102
+}
+
+wallet-api.localhost {
+    import local_tls
+    reverse_proxy caddy:7001
+}
+
+issuer-api.localhost {
+    import local_tls
+    reverse_proxy caddy:7002
+}
+
+verifier-api.localhost {
+    import local_tls
+    reverse_proxy caddy:7003
+}
+
+verifier2-api.localhost {
+    import local_tls
+    reverse_proxy caddy:7004
+}
+
+vc-repo.localhost {
+    import local_tls
+    reverse_proxy caddy:7103
+}

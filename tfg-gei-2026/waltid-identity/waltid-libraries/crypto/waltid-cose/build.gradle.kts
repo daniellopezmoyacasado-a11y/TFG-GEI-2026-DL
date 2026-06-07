@@ -1,0 +1,73 @@
+@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+
+plugins {
+    id("waltid.multiplatform.library")
+    id("waltid.publish.maven")
+    id("waltid.publish.npm")
+}
+
+group = "id.walt.crypto"
+
+
+kotlin {
+    js(IR) {
+        outputModuleName = "cose"
+    }
+
+    sourceSets {
+        commonMain.dependencies {
+            // Logging
+            implementation(identityLibs.oshai.kotlinlogging)
+
+            // JSON
+            implementation(identityLibs.kotlinx.serialization.json)
+
+            // CBOR
+            api(identityLibs.kotlinx.serialization.cbor)
+
+            // Waltid
+            implementation(project(":waltid-libraries:crypto:waltid-crypto"))
+
+            // Hashing
+            implementation(identityLibs.kotlincrypto.macs.hmac.sha2)
+
+            implementation(identityLibs.kotlinx.coroutines.core)
+        }
+        commonTest.dependencies {
+            implementation(identityLibs.kotlinx.serialization.json)
+            implementation(kotlin("test-common"))
+            implementation(kotlin("test-annotations-common"))
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+        }
+        jvmMain.dependencies {
+            implementation(identityLibs.nimbus.jose.jwt)
+        }
+        jvmTest.dependencies {
+            // Logging
+            implementation("org.slf4j:slf4j-simple:2.0.17")
+
+            // Test
+            implementation(kotlin("test"))
+
+            implementation(identityLibs.junit.jupiter.api)
+            implementation(identityLibs.junit.jupiter.params)
+        }
+        jsMain.dependencies {
+
+        }
+        jsTest.dependencies {
+            implementation(kotlin("test-js"))
+        }
+
+    }
+}
+
+
+mavenPublishing {
+    pom {
+        name.set("walt.id COSE library")
+        description.set("walt.id Kotlin/Java library for COSE")
+    }
+}

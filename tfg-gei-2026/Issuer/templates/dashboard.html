@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}GA4GH Issuer{% endblock %}
+
+{% block content %}
+
+<h1>GA4GH Visa Issuer</h1>
+
+<p class="user-line">
+    Logged in as: {{ user.email }}
+</p>
+
+{% if error %}
+    <div class="error-box">
+        {{ error }}
+    </div>
+{% endif %}
+
+<div class="card-grid">
+
+    <section class="form-card">
+
+    <h2>Issue Visa for Wallet </h2><br>
+    <form method="post" action="/ui/issue-visa-for-wallet">
+        <label for="visa_type">Visa Type:</label>
+        <select name="visa_type" required>
+            <option value="red">red</option>
+            <option value="yellow">yellow</option>
+            <option value="blue">blue</option>
+            <option value="purple">purple</option>
+        </select>
+
+        <button type="submit">Issue Visa</button>
+    </form>
+
+    </section>
+
+    <section class="form-card">
+
+    <h2>Issue Visa JWT </h2><br>
+    <form method="post" action="/ui/issue-visa">
+        <label for="visa_type">Visa Type:</label>
+        <select name="visa_type" required>
+            <option value="red">red</option>
+            <option value="yellow">yellow</option>
+            <option value="blue">blue</option>
+            <option value="purple">purple</option>
+        </select>
+    
+        <button type="submit">Issue Visa</button>
+    </form>
+    </section>
+</div>
+
+    <form method="post" action="/logout">
+        <button type="submit">Log out</button>
+    </form>
+
+{% endblock %}

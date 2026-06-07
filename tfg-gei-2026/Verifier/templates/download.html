@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Download Dataset{% endblock %}
+
+{% block content %}
+
+<h2>Access granted</h2>
+
+<section class="result-card">
+
+<p>You now have access to:</p>
+<p><strong>{{ dataset_name }}</strong></p>
+
+<br>
+
+<a href="{{ download_url }}">
+    <button>Download dataset</button>
+</a>
+
+<br><br>
+
+</section>
+
+<a href="/dashboard">Back to dashboard</a>
+
+{% endblock %}

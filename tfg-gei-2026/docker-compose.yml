@@ -1,0 +1,106 @@
+services:
+  edge-proxy:
+    image: docker.io/caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./reverse-proxy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./reverse-proxy/data:/data
+      - ./reverse-proxy/config:/config
+    networks:
+      - platform
+    restart: unless-stopped
+
+  issuer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: Issuer
+    environment:
+      APP_MODULE: issuer_app
+      APP_PORT: "8081"
+      JWT_ISSUER: "${ISSUER_PUBLIC_URL:-https://issuer.localhost}"
+      ISSUER_PUBLIC_URL: "${ISSUER_PUBLIC_URL:-https://issuer.localhost}"
+      BROKER_PUBLIC_URL: "${BROKER_PUBLIC_URL:-https://broker.localhost}"
+      VERIFIER_PUBLIC_URL: "${VERIFIER_PUBLIC_URL:-https://verifier.localhost}"
+      WALLET_PUBLIC_URL: "${WALLET_PUBLIC_URL:-https://wallet.localhost}"
+      SESSION_COOKIE_SECURE: "${SESSION_COOKIE_SECURE:-true}"
+      ISSUER_JWT_PRIVATE_KEY_PATH: ./jwt-keys/issuer_private.pem
+      ISSUER_JWT_PUBLIC_KEY_PATH: ./jwt-keys/issuer_public.pem
+      WALTID_ISSUER_KEY_PATH: ./issuer-secrets/issuer-key.json
+      WALTID_WALLET_URL: "${DOCKER_WALTID_WALLET_URL:-http://caddy:7001/wallet-api}"
+      WALTID_ISSUER_URL: "${DOCKER_WALTID_ISSUER_URL:-http://caddy:7002}"
+      WALTID_TIMEOUT_S: "${WALTID_TIMEOUT_S:-30}"
+    ports:
+      - "8081:8081"
+    networks:
+      - platform
+    restart: unless-stopped
+
+  broker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: Broker
+    environment:
+      APP_MODULE: broker_app
+      APP_PORT: "8082"
+      BROKER_DATABASE_URL: sqlite:////data/visa_broker.db
+      PASSPORT_ISSUER: "${BROKER_PUBLIC_URL:-https://broker.localhost}"
+      ISSUER_PUBLIC_URL: "${ISSUER_PUBLIC_URL:-https://issuer.localhost}"
+      BROKER_PUBLIC_URL: "${BROKER_PUBLIC_URL:-https://broker.localhost}"
+      VERIFIER_PUBLIC_URL: "${VERIFIER_PUBLIC_URL:-https://verifier.localhost}"
+      WALLET_PUBLIC_URL: "${WALLET_PUBLIC_URL:-https://wallet.localhost}"
+      SESSION_COOKIE_SECURE: "${SESSION_COOKIE_SECURE:-true}"
+      ISSUER_JWT_PUBLIC_KEY_PATH: ./jwt-keys/issuer_public.pem
+      BROKER_JWT_PRIVATE_KEY_PATH: ./jwt-keys/broker_private.pem
+      BROKER_JWT_PUBLIC_KEY_PATH: ./jwt-keys/broker_public.pem
+      WALTID_WALLET_URL: "${DOCKER_WALTID_WALLET_URL:-http://caddy:7001/wallet-api}"
+      WALTID_VERIFIER_BASE_URL: "${DOCKER_WALTID_VERIFIER_BASE_URL:-http://caddy:7003}"
+      WALTID_TIMEOUT_S: "${WALTID_TIMEOUT_S:-30}"
+    ports:
+      - "8082:8082"
+    volumes:
+      - broker_data:/data
+    networks:
+      - platform
+    restart: unless-stopped
+
+  verifier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE_DIR: Verifier
+    environment:
+      APP_MODULE: verifier_app
+      APP_PORT: "8083"
+      VERIFIER_DATABASE_URL: sqlite:////data/verifier.db
+      PASSPORT_ISSUER: "${BROKER_PUBLIC_URL:-https://broker.localhost}"
+      ISSUER_PUBLIC_URL: "${ISSUER_PUBLIC_URL:-https://issuer.localhost}"
+      BROKER_PUBLIC_URL: "${BROKER_PUBLIC_URL:-https://broker.localhost}"
+      VERIFIER_PUBLIC_URL: "${VERIFIER_PUBLIC_URL:-https://verifier.localhost}"
+      WALLET_PUBLIC_URL: "${WALLET_PUBLIC_URL:-https://wallet.localhost}"
+      ISSUER_JWT_PUBLIC_KEY_PATH: ./jwt-keys/issuer_public.pem
+      BROKER_JWT_PUBLIC_KEY_PATH: ./jwt-keys/broker_public.pem
+      WALTID_WALLET_URL: "${DOCKER_WALTID_WALLET_URL:-http://caddy:7001/wallet-api}"
+      WALTID_VERIFIER_BASE_URL: "${DOCKER_WALTID_VERIFIER_BASE_URL:-http://caddy:7003}"
+      WALTID_TIMEOUT_S: "${WALTID_TIMEOUT_S:-30}"
+    ports:
+      - "8083:8083"
+    volumes:
+      - verifier_data:/data
+    networks:
+      - platform
+    restart: unless-stopped
+
+volumes:
+  broker_data:
+  verifier_data:
+
+networks:
+  platform:
+    name: tfg-shared
